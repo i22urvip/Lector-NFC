@@ -1,12 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Mi Prueba en GitHub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Excusas Dev</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #282c34;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #3b4048;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 { color: #61dafb; }
+        #excusa-display {
+            font-size: 1.5rem;
+            margin: 30px 0;
+            min-height: 80px;
+            color: #abb2bf;
+            font-style: italic;
+        }
+        button {
+            background-color: #61dafb;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #282c34;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); background-color: #4fa8c7; }
+    </style>
 </head>
 <body>
-    <h1>Hola Mundo desde GitHub!</h1>
-    <button onclick="saludar()">Haz clic aquí</button>
-    <p id="mensaje"></p>
+
+    <div class="container">
+        <h1>¯\_(ツ)_/¯</h1>
+        <h2>Generador de Excusas</h2>
+        <p id="excusa-display">Pulsa el botón si algo ha fallado...</p>
+        <button onclick="generarExcusa()">¡Necesito una excusa!</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
