@@ -1,27 +1,62 @@
-// Lista de excusas típicas
-const excusas = [
-    "En mi máquina funciona perfectamente.",
-    "Eso no es un bug, es una característica no documentada.",
-    "No he tocado ese código en semanas.",
-    "Debe ser un problema de caché del navegador.",
-    "Lo compilaré de nuevo a ver si se arregla solo.",
-    "Es culpa del usuario, lo está usando mal.",
-    "Ayer funcionaba antes de irme a casa.",
-    "Es un problema de latencia en la red.",
-    "El servidor está poseído.",
-    "¿Has probado a reiniciar?"
-];
+const btn = document.getElementById("btn-escanear");
+const consola = document.getElementById("consola");
 
-function generarExcusa() {
-    // 1. Elegimos un número al azar basado en la longitud de la lista
-    const indiceAleatorio = Math.floor(Math.random() * excusas.length);
-    
-    // 2. Seleccionamos la excusa
-    const excusaElegida = excusas[indiceAleatorio];
-    
-    // 3. La mostramos en el HTML
-    document.getElementById("excusa-display").innerText = '"' + excusaElegida + '"';
-    
-    // Un poco de "debug" para que veas que funciona en la consola
-    console.log("Excusa generada: " + excusaElegida);
+// Función para escribir en la pantallita negra
+function log(mensaje, tipo = "normal") {
+    const p = document.createElement("div");
+    p.textContent = `> ${mensaje}`;
+    if (tipo === "error") p.style.color = "#ff4444";
+    if (tipo === "exito") p.style.color = "#00ff00";
+    consola.prepend(p); // Añade el mensaje al principio
 }
+
+btn.addEventListener("click", async () => {
+    log("Iniciando escáner...", "normal");
+
+    // 1. Verificamos si el navegador soporta NFC
+    if (!("NDEFReader" in window)) {
+        log("❌ Tu navegador no soporta Web NFC. Prueba Chrome en Android.", "error");
+        return;
+    }
+
+    try {
+        // 2. Instanciamos el lector
+        const ndef = new NDEFReader();
+        
+        // 3. Pedimos permiso e iniciamos el escaneo
+        await ndef.scan();
+        log("✅ Escáner activo. Acerca la tarjeta.", "exito");
+        btn.style.display = "none"; // Ocultamos botón para que no moleste
+
+        // 4. Qué hacer si hay un error de lectura
+        ndef.addEventListener("readingerror", () => {
+            log("⚠️ Error leyendo la tarjeta. Intenta mantenerla quieta.", "error");
+        });
+
+        // 5. ¡QUÉ HACER CUANDO LEEMOS ALGO!
+        ndef.addEventListener("reading", ({ message, serialNumber }) => {
+            log("--------------------------------");
+            log(`💳 UID (Serial): ${serialNumber}`, "exito");
+            
+            // Recorremos los registros (records) que tenga la tarjeta
+            if (message.records.length === 0) {
+                log("La tarjeta está vacía o sin formato NDEF.");
+            }
+
+            for (const record of message.records) {
+                log(`Tipo de registro: ${record.recordType}`);
+                
+                // Si es texto, lo decodificamos
+                if (record.recordType === "text") {
+                    const textoDecodificado = new TextDecoder(record.encoding).decode(record.data);
+                    log(`📝 CONTENIDO: ${textoDecodificado}`, "exito");
+                } else {
+                    log("Datos no textuales detectados.");
+                }
+            }
+        });
+
+    } catch (error) {
+        log("❌ Error: " + error, "error");
+    }
+});
